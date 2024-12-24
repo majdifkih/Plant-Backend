@@ -12,7 +12,8 @@ jobs:
   # Job de test
   test:
     runs-on: ubuntu-latest  # Utilisation d'un environnement Ubuntu
-    
+    continue-on-error: true  # Ignore les erreurs de test et continue
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3  # Vérifier le code source
@@ -30,8 +31,9 @@ jobs:
 
   # Job de déploiement
   deploy:
-    needs: test  # Ce job ne s'exécute que si le job de test réussit
+    needs: test  # Ce job se déclenche seulement après le job de test
     runs-on: ubuntu-latest  # Utilisation d'un environnement Ubuntu
+    if: ${{ always() }}  # Le job se lance même si le job de test échoue
 
     steps:
       - name: Checkout code

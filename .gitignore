@@ -1,0 +1,67 @@
+# Node.js
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+prisma/*.db
+prisma/migrations/
+prisma/.env
+
+# Docker
+docker-compose.override.yml
+*/docker-compose.yml
+
+# Debugger configurations
+.vscode/
+.idea/
+
+# Optional npm cache directory
+.npm/
+
+# Jest
+coverage/
+*.lcov
+.jest/
+
+# Build directories
+build/
+out/
+coverage/
+tmp/
+temp/
+
+# VS Code settings
+.vscode/
+
+# GitHub Actions
+.github/workflows/
+
+# Other IDEs and editors
+.idea/
+.vscode/
+.vscode-test/
+*.swp
+
+# Exclude lock files if not using yarn or npm exclusively
+# Uncomment if needed
+# yarn.lock
+# package-lock.json

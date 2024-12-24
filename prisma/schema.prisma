@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  nom        String
+  email      String    @unique
+  motDePasse String
+  role       String    @default("Client")
+  posts      Post[]
+  plants     Plant[]
+  versions   Version[]
+}
+
+model Post {
+  id_post       Int           @id @default(autoincrement())
+  titre         String
+  photo         String
+  date_creation DateTime      @default(now())
+  description   String
+  userId        Int
+  user          User          @relation(fields: [userId], references: [id])
+  commentaires  Commentaire[]
+  plantId       Int
+  plant         Plant         @relation(fields: [plantId], references: [id_plant]) // Relation to Plant model
+}
+
+model Commentaire {
+  id_comment    Int      @id @default(autoincrement())
+  contenu       String
+  date_creation DateTime @default(now())
+  postId        Int
+  post          Post     @relation(fields: [postId], references: [id_post])
+}
+
+model Plant {
+  id_plant      Int       @id @default(autoincrement())
+  plant_name    String
+  description   String
+  health_status String
+  date_creation DateTime  @default(now())
+  userId        Int
+  user          User      @relation(fields: [userId], references: [id]) // Relation to User model
+  posts         Post[] // Relation to Post model
+  versions      Version[] // Relation to Version model
+  plant_image   Bytes? // Add this field to store the actual image as binary data
+}
+
+model Version {
+  id_version            Int      @id @default(autoincrement())
+  plantId               Int // Foreign key to Plant model
+  date_created          DateTime @default(now())
+  updated_health_status String // Updated health status of the plant
+  updated_image         Bytes? // New image to track progress
+  userId                Int // Foreign key to User model
+  plant                 Plant    @relation(fields: [plantId], references: [id_plant], onDelete: Cascade) // Relation to Plant model
+  user                  User     @relation(fields: [userId], references: [id]) // Relation to User model
+}

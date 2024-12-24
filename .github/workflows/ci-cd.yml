@@ -59,12 +59,11 @@ jobs:
           ngrok http 5000 --log=stdout &  # Lancer Ngrok pour exposer votre application sur le port 5000
 
       - name: Get Ngrok URL
-        id: ngrok-url
         run: |
           # Récupérer l'URL générée par Ngrok
           url=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
           echo "Ngrok URL: $url"
-          echo "ngrok_url=$url" >> $GITHUB_ENV  # Stocke l'URL générée dans les variables d'environnement
+          echo "NGROK_URL=$url" >> $GITHUB_ENV  # Stocke l'URL générée dans les variables d'environnement
 
       - name: Display Ngrok URL
-        run: echo "The public Ngrok URL is: ${{ env.ngrok_url }}"
+        run: echo "The public Ngrok URL is: ${{ env.NGROK_URL }}"

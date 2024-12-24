@@ -1,10 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
-    "rootDir": "./src",
+    "rootDir": "./",  // Modifie rootDir pour inclure tout le projet
     "outDir": "./dist",
     "strict": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "src/**/*",  // Inclut les fichiers sous src
+    "tests/**/*" // Ajoute tests pour inclure les fichiers de test
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

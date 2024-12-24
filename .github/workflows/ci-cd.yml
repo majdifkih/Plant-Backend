@@ -64,7 +64,7 @@ jobs:
           # Récupérer l'URL générée par Ngrok
           url=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
           echo "Ngrok URL: $url"
-          echo "::set-output name=ngrok_url::$url"  # Stocke l'URL générée pour utilisation future
+          echo "ngrok_url=$url" >> $GITHUB_ENV  # Stocke l'URL générée dans les variables d'environnement
 
       - name: Display Ngrok URL
-        run: echo "The public Ngrok URL is: ${{ steps.ngrok-url.outputs.ngrok_url }}"
+        run: echo "The public Ngrok URL is: ${{ env.ngrok_url }}"

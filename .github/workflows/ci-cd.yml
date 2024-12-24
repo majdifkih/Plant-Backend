@@ -64,6 +64,3 @@ jobs:
           url=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
           echo "Ngrok URL: $url"
           echo "NGROK_URL=$url" >> $GITHUB_ENV  # Stocke l'URL générée dans les variables d'environnement
-
-      - name: Display Ngrok URL
-        run: echo "The public Ngrok URL is: ${{ env.NGROK_URL }}"

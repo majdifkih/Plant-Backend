@@ -52,8 +52,7 @@ temp/
 # VS Code settings
 .vscode/
 
-# GitHub Actions
-.github/workflows/
+
 
 # Other IDEs and editors
 .idea/

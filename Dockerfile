@@ -16,7 +16,7 @@ RUN npm install
 COPY . .
 # Copies all the files to the working directory
 
-EXPOSE 4000
+EXPOSE 8080
 # Container will run on this port
 
 CMD ["npm", "run", "dev"]

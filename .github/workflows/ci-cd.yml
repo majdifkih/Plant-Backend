@@ -56,9 +56,9 @@ jobs:
 
       - name: Install Ngrok
         run: |
-          curl -s https://ngrok.com/download | unzip -d /tmp
+          curl -s https://ngrok.com/download | tar -xz -C /tmp  # Décompresser Ngrok
           sudo mv /tmp/ngrok /usr/local/bin
-          ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+          ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}  # Authentification avec Ngrok
 
       - name: Expose the local server with Ngrok
         run: |

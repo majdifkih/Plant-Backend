@@ -1,15 +1,12 @@
 {
   "compilerOptions": {
-    "rootDir": "./",  // Modifie rootDir pour inclure tout le projet
     "outDir": "./dist",
-    "strict": true,
+    "rootDir": "./src",  // Assurez-vous que tous les fichiers sources sont dans src
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "strict": true
   },
   "include": [
-    "src/**/*",  // Inclut les fichiers sous src
-    "tests/**/*" // Ajoute tests pour inclure les fichiers de test
+    "src/**/*"
   ],
   "exclude": [
     "node_modules"

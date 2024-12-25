@@ -12,7 +12,21 @@ jobs:
   # Job de test
   test:
     runs-on: ubuntu-latest  # Utilisation d'un environnement Ubuntu
-    continue-on-error: true  # Ignore les erreurs de test et continue
+
+    services:
+      postgres:
+        image: postgres:15  # Image Docker PostgreSQL
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 0000
+          POSTGRES_DB: plantZ
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=3
 
     steps:
       - name: Checkout code
@@ -21,19 +35,24 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Vous pouvez spécifier votre version Node.js ici
+          node-version: '18'  # Spécifiez la version de Node.js
 
       - name: Install dependencies
-        run: npm install  # Installation des dépendances avec npm
+        run: npm install  # Installation des dépendances
+
+      - name: Set DATABASE_URL environment variable
+        run: echo "DATABASE_URL=postgres://postgres:0000@localhost:5432/plantZ" >> $GITHUB_ENV
 
       - name: Run tests
-        run: npm run test  # Exécution des tests Jest
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: npm run test  # Exécute les tests unitaires avec Jest
 
   # Job de déploiement
   deploy:
-    needs: test  # Ce job se déclenche seulement après le job de test
-    runs-on: ubuntu-latest  # Utilisation d'un environnement Ubuntu
-    if: ${{ always() }}  # Le job se lance même si le job de test échoue
+    needs: test  # Ce job se déclenche après le job de test
+    runs-on: ubuntu-latest  # Environnement Ubuntu
+    if: always()  # Lance le déploiement même si le job de test échoue
 
     steps:
       - name: Checkout code
@@ -44,8 +63,8 @@ jobs:
         with:
           node-version: '18'  # Version de Node.js à utiliser
 
-      - name: Set up DATABASE_URL
-        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV  # Charge la variable DATABASE_URL dans l'environnement
+      - name: Set DATABASE_URL environment variable
+        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: npm install  # Installation des dépendances avec npm
@@ -73,7 +92,6 @@ jobs:
           # Attendre quelques secondes pour que Ngrok ait généré l'URL
           sleep 5
           url=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-          echo "Ngrok URL: $url"
           echo "NGROK_URL=$url" >> $GITHUB_ENV  # Stocke l'URL générée pour l'utiliser dans les étapes suivantes
 
       - name: Display Ngrok URL

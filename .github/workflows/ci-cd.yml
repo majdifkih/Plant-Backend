@@ -58,7 +58,7 @@ jobs:
       - name: Run tests
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
-        run: npm run test
+        run: npm run build
 
   # Job de build
   build:

@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
-    "rootDir": "./src",
     "outDir": "./dist",
-    "strict": true,
-    "esModuleInterop": true
-  }
+    "rootDir": "./src",  // Assurez-vous que tous les fichiers sources sont dans src
+    "esModuleInterop": true,
+    "strict": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -52,6 +52,7 @@ jobs:
   deploy:
     needs: test  # Ce job se déclenche après le job de test
     runs-on: ubuntu-latest  # Environnement Ubuntu
+    if: always()  # Lance le déploiement même si le job de test échoue
 
     steps:
       - name: Checkout code

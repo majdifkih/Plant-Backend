@@ -9,7 +9,6 @@ on:
       - main
 
 jobs:
-  # Job de test
   test:
     runs-on: ubuntu-latest
 
@@ -23,27 +22,32 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U postgres" 
-          --health-interval=10s 
-          --health-timeout=5s 
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
           --health-retries=3
+          --network-alias=postgres
 
     steps:
+      # Vérifie le code source
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Configure Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
+      # Installe les dépendances
       - name: Install dependencies
         run: npm install
 
+      # Attendre que PostgreSQL soit prêt
       - name: Wait for PostgreSQL
         run: |
           for i in {1..30}; do
-            if pg_isready -h localhost -p 5432; then
+            if pg_isready -h postgres -p 5432; then
               echo "PostgreSQL is ready";
               break;
             fi
@@ -51,38 +55,87 @@ jobs:
             sleep 2;
           done
 
+      # Configure DATABASE_URL
       - name: Set DATABASE_URL environment variable
-        run: echo "DATABASE_URL=postgres://postgres:0000@localhost:5432/plantZ" >> $GITHUB_ENV
+        run: echo "DATABASE_URL=postgres://postgres:0000@postgres:5432/plantZ" >> $GITHUB_ENV
 
+      # Exécute les tests
       - name: Run tests
         env:
           DATABASE_URL: ${{ env.DATABASE_URL }}
         run: npm run test
 
-  # Job de déploiement
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: always()
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 0000
+          POSTGRES_DB: plantZ
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+          --network-alias=postgres
 
     steps:
+      # Vérifie le code source
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Configure Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
+      # Configure DATABASE_URL
       - name: Set DATABASE_URL environment variable
-        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
+        run: echo "DATABASE_URL=postgres://postgres:0000@postgres:5432/plantZ" >> $GITHUB_ENV
 
+      # Installe les dépendances
       - name: Install dependencies
         run: npm install
 
+      # Compile l'application
       - name: Build the application
         run: npm run build
 
+      # Démarre le serveur
       - name: Start the server
+        env:
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: nohup npm start &
+
+      # Installe Ngrok
+      - name: Install Ngrok
         run: |
-          nohup npm start &
+          curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip
+          unzip ngrok.zip
+          sudo mv ngrok /usr/local/bin
+          ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+
+      # Expose le serveur local avec Ngrok
+      - name: Expose the local server with Ngrok
+        run: |
+          nohup ngrok http 8080 --log=stdout &
+
+      # Récupère l'URL publique générée par Ngrok
+      - name: Get Ngrok URL
+        id: ngrok-url
+        run: |
+          sleep 5
+          url=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+          echo "NGROK_URL=$url" >> $GITHUB_ENV
+
+      # Affiche l'URL Ngrok
+      - name: Display Ngrok URL
+        run: |
+          echo "The public Ngrok URL is: ${{ env.NGROK_URL }}"
